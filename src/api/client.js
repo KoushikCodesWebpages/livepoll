@@ -2,7 +2,8 @@ import axios from "axios"
 import { getLoader } from "../utils/loaderBridge"
 
 export const API = axios.create({
-  baseURL: "https://realtime-poll.clqit.in",
+  // baseURL: "https://realtime-poll.clqit.in",
+  baseURL: "http://localhost:8080",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
