@@ -1,0 +1,32 @@
+import Navbar from "../../components/Navbar.jsx"
+import useMyPolls from "../../hooks/useMyPoll.jsx"
+import PollCard from "../../components/PollCard.jsx"
+
+export default function Home() {
+  const { polls, loading, error } = useMyPolls()
+
+  return (
+    <div className="min-h-screen bg-[#0b0f19] text-white">
+      <Navbar />
+
+      <div className="max-w-5xl mx-auto p-6">
+        <h2 className="text-2xl font-semibold mb-6">My Polls</h2>
+
+        {loading && <div className="text-gray-400">Loading polls...</div>}
+        {error && <div className="text-red-400">{error}</div>}
+
+        {!loading && polls.length === 0 && (
+          <div className="text-gray-400">
+            You haven’t created any polls yet.
+          </div>
+        )}
+
+        <div className="grid gap-5 md:grid-cols-2">
+          {polls.map(poll => (
+            <PollCard key={poll.poll_id} poll={poll} />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
