@@ -118,7 +118,7 @@ export default function CreatePoll() {
       {/* BACK */}
       <div className="max-w-3xl mx-auto px-6 pt-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/home", { replace: true })}
           className="flex items-center gap-2 text-gray-400 hover:text-white transition mb-4"
         >
           <ArrowLeft size={18} />

@@ -155,7 +155,8 @@ export default function EditPoll() {
 
       </div>
 
-      <SubmitBar loading={loading} submit={submit} />
+      <SubmitBar loading={loading} submit={submit} mode="edit" />
+
 
     </div>
   )
