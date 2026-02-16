@@ -32,28 +32,52 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">
-      {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-4 py-3 border-b border-white/10">
-        <h1 className="text-base md:text-xl font-semibold tracking-wide">
-          LivePoll
-        </h1>
+      
+  {/* NAVBAR */}
+  <nav className="flex justify-between items-center px-4 md:px-20 py-5 border-b border-white/10">
+    <h1 className="text-lg md:text-2xl font-semibold tracking-wide">
+      LivePoll
+    </h1>
 
-        <div className="ml-auto flex items-center gap-3 text-xs md:text-sm">
-          <a href="#features" className="hidden sm:inline text-gray-300 hover:text-white">Features</a>
-          <a href="#how" className="px-2 py-1 md:px-0 md:py-0 rounded-full md:rounded-none bg-white/5 md:bg-transparent border border-white/10 md:border-none text-gray-300 hover:text-white">
-            <span className="hidden md:inline">How it works</span>
-            <span className="md:hidden">?</span>
-          </a>
+    <div className="ml-auto flex items-center gap-4 md:gap-6 text-sm md:text-base">
 
-          <button onClick={() => go('/login')} className="flex items-center justify-center md:px-4 md:py-2 px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20">
-            Login
-          </button>
+    {/* FEATURES (desktop only) */}
+    <a
+      href="#features"
+      className="hidden md:block text-gray-300 hover:text-white px-2 py-1 md:px-0 md:py-0"
+    >
+      Features
+    </a>
 
-          <button onClick={() => go('/signup')} className="flex items-center justify-center md:px-4 md:py-2 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-medium">
-            Sign up
-          </button>
-        </div>
-      </nav>
+
+      {/* HOW IT WORKS */}
+      <a
+        href="#how"
+        className="text-gray-300 hover:text-white px-2 py-1 md:px-0 md:py-0"
+      >
+        How it works
+      </a>
+
+      {/* LOGIN */}
+      <button
+        onClick={() => go('/login')}
+        className="md:px-5 md:py-2.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20"
+      >
+        Login
+      </button>
+
+      {/* SIGNUP */}
+      <button
+        onClick={() => go('/signup')}
+        className="md:px-5 md:py-2.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-medium"
+      >
+        Sign up
+      </button>
+
+    </div>
+  </nav>
+
+
 
       {/* HERO */}
       <section className="text-center py-20 md:py-28 px-4 md:px-6">
@@ -86,7 +110,7 @@ export default function Landing() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-20">
+      <section id="features" className="scroll-mt-28 max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-20">
         <h3 className="text-2xl md:text-3xl font-semibold text-center mb-10 md:mb-14">Features</h3>
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
@@ -108,7 +132,7 @@ export default function Landing() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="bg-white/5 py-16 md:py-20 px-4 md:px-6">
+      <section id="how" className="bg-white/5 py-16 md:py-20 px-4 md:px-6 scroll-mt-28">
         <div className="max-w-5xl mx-auto text-center">
           <h3 className="text-2xl md:text-3xl font-semibold mb-10 md:mb-14">How it works</h3>
 
