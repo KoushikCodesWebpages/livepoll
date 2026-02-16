@@ -1,3 +1,35 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* slide in */
+@keyframes toastIn {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* slide out */
+@keyframes toastOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+.animate-toastIn {
+  animation: toastIn 0.35s cubic-bezier(.22,1,.36,1);
+}
+
+.animate-toastOut {
+  animation: toastOut 0.35s cubic-bezier(.22,1,.36,1);
+}

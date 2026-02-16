@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar"
 import usePoll from "../../hooks/usePoll"
-import PollViewCard from "../../components/poll/PollViewCard"
-
+import PollViewCard from "../../components/PollViewCard"
+import Loader from "../../components/ui/Loader"
 export default function Poll() {
   const { poll, loading, error } = usePoll()
 
@@ -10,7 +10,7 @@ export default function Poll() {
       <Navbar />
 
       <div className="p-8">
-        {loading && <div className="text-gray-400">Loading poll...</div>}
+        {loading && <Loader text="Fetching poll..." />}
         {error && <div className="text-red-400">{error}</div>}
         {poll && <PollViewCard poll={poll} />}
       </div>
