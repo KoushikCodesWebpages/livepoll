@@ -9,7 +9,6 @@ import Signup from "../pages/public/Signup"
 
 // dashboard
 import Home from "../pages/dashboard/Home"
-import MyPolls from "../pages/dashboard/MyPolls"
 import CreatePoll from "../pages/dashboard/CreatePoll"
 import EditPoll from "../pages/dashboard/EditPoll"
 import SharePoll from "../pages/public/SharePoll"
@@ -35,7 +34,6 @@ export const router = createBrowserRouter([
     element: <Protected />,
     children: [
       { path: "/home", element: <Home /> },
-      { path: "/my-polls", element: <MyPolls /> },
       { path: "/create", element: <CreatePoll /> },
 
       // ⭐ now data loads BEFORE render

@@ -5,12 +5,15 @@ import { ArrowLeft } from "lucide-react"
 import Navbar from "../../components/Navbar"
 import { API } from "../../api/client"
 import { useToast } from "../../components/ui/ToastProvider"
+import { computeSchedule } from "../../components/poll/ScheduleSettings"
 
 import QuestionCard from "../../components/poll/QuestionCard"
 import OptionsEditor from "../../components/poll/OptionsEditor"
 import BasicSettings from "../../components/poll/BasicSettings"
+import ScheduleSettings from "../../components/poll/ScheduleSettings"
 import AdvancedSettings from "../../components/poll/AdvancedSettings"
 import SubmitBar from "../../components/poll/SubmitBar"
+
 
 
 export default function CreatePoll() {
@@ -64,42 +67,53 @@ export default function CreatePoll() {
   const removeOption = (i) =>
     update("options", form.options.filter((_, idx) => idx !== i))
 
-  // ---------- submit ----------
   const submit = async () => {
 
-    setError("")
-    setLoading(true)
+  setError("")
+  setLoading(true)
 
     try {
+
+      // ---------- SCHEDULE ----------
+      const schedule = computeSchedule(form)
+
       const payload = {
+        // CONTENT
         question: form.question,
         options: form.options.filter(o => o.trim() !== ""),
-        visibility: form.visibility,
-        allow_change: form.allow_change,
-        anonymous: form.anonymous,
 
         ...(form.description && { description: form.description }),
         ...(form.allow_custom_option && { allow_custom_option: true }),
         ...(form.randomize_options && { randomize_options: true }),
+
+        // ACCESS
+        visibility: form.visibility,
         ...(form.allowed_emails && {
           allowed_emails: form.allowed_emails.split(",").map(e => e.trim())
         }),
-        ...(form.max_votes_per_user !== 1 && { max_votes_per_user: Number(form.max_votes_per_user) }),
-        ...(form.hide_results_until_end && { hide_results_until_end: true }),
-        ...(form.show_voters && { show_voters: true }),
-        ...(form.unique_ip && { unique_ip: true }),
-        ...(form.unique_session === false && { unique_session: false }),
-        ...(form.start_at && { start_at: form.start_at }),
-        ...(form.end_at && { end_at: form.end_at }),
-        ...(form.auto_close && { auto_close: true }),
-        ...(form.show_live_results === false && { show_live_results: false }),
-        ...(form.share_type !== "link" && { share_type: form.share_type })
+
+        // VOTING
+        max_votes_per_user: Number(form.max_votes_per_user),
+        allow_change: form.allow_change,
+        anonymous: form.anonymous,
+        hide_results_until_end: form.hide_results_until_end,
+        show_voters: form.show_voters,
+        unique_ip: form.unique_ip,
+        unique_session: form.unique_session,
+
+        // BEHAVIOR (UTC times here)
+        start_at: schedule.start_at,
+        end_at: schedule.expires_at,
+        auto_close: form.auto_close,
+        show_live_results: form.show_live_results,
+
+        // DISTRIBUTION
+        share_type: form.share_type
       }
 
       const res = await API.post("/b1/poll/create", payload)
 
       toast.show("Poll created successfully 🎉")
-
       setTimeout(() => navigate("/home"), 700)
 
     } catch (err) {
@@ -108,6 +122,7 @@ export default function CreatePoll() {
       setLoading(false)
     }
   }
+
 
   // ---------- UI ----------
   return (
@@ -156,6 +171,9 @@ export default function CreatePoll() {
         </button>
 
         <AdvancedSettings form={form} update={update} advanced={advanced} />
+
+        {/* ---------------- SCHEDULE (REUSED) ---------------- */}
+        <ScheduleSettings form={form} update={update} />
 
       </div>
 

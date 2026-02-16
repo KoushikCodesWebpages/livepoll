@@ -4,7 +4,7 @@ import PollCard from "../../components/PollCard.jsx"
 // import Loader from "../../components/ui/Loader"
 
 export default function Home() {
-  const { polls, loading, error } = useMyPolls()
+const { data: polls = [], isLoading, error } = useMyPolls()
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">
@@ -16,11 +16,12 @@ export default function Home() {
          {/* {loading && <Loader text="Fetching poll..." />} */}
         {error && <div className="text-red-400">{error}</div>}
 
-        {!loading && polls.length === 0 && (
+        {!isLoading && polls.length === 0 && (
           <div className="text-gray-400">
             You haven’t created any polls yet.
           </div>
         )}
+
 
         <div className="grid gap-5 md:grid-cols-2">
           {polls.map(poll => (

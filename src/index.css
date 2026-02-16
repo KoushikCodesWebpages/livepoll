@@ -71,3 +71,30 @@ html {
 .animate-shake {
   animation: shake 0.35s ease;
 }
+
+.card-hover {
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 10px 30px rgba(99,102,241,.25);
+}
+
+.card-accent {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-accent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(99,102,241,.15), transparent 70%);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.card-accent:hover::before {
+  opacity: 1;
+}

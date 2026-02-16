@@ -1,17 +1,92 @@
-import { ArrowLeft, Pencil, Globe, Lock, Users, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import ToggleBadge from "../components/ui/ToggleBadge";
-import { useMemo } from "react";
+import { useMemo, useState,} from "react";
+
+
 import { API } from "../api/client";
 import { useToast } from "../components/ui/ToastProvider";
+import { useAuth } from "../hooks/useAuth";
+import { useSocket } from "../hooks/useSocket"
+import ToggleBadge from "../components/ui/ToggleBadge";
 
-export default function PollViewCard({ poll }) {
+import { ArrowLeft, Pencil, Globe, Lock, Users, Share2 } from "lucide-react";
+
+export default function PollViewCard({ initialPoll }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const toast = useToast();
+  const [poll, setPoll] = useState(initialPoll);
+  const wsUrl = poll?.poll_id
+  ? `${import.meta.env.VITE_WS_URL}/ws/poll/${poll.poll_id}`
+  : null
 
   const isOwner = user?.id === poll?.owner_id;
+  
+  useSocket(wsUrl, {
+    onOpen: () => {
+      console.log("Joined poll room")
+    },
+
+    onMessage: (msg) => {
+      console.log("WS EVENT:", msg)
+
+      switch (msg.type) {
+
+        // someone voted
+        case "vote_update":
+          setPoll(prev => ({
+            ...prev,
+            content: {
+              ...prev.content,
+              options: prev.content.options.map(opt =>
+                opt.option_id === msg.option_id
+                  ? { ...opt, votes: msg.votes }
+                  : opt
+              )
+            },
+            meta: {
+              ...prev.meta,
+              total_votes: msg.total_votes
+            }
+          }))
+          break
+
+        // poll ended
+        case "poll_closed":
+          setPoll(prev => ({
+            ...prev,
+            meta: { ...prev.meta, closed: true }
+          }))
+          break
+
+        default:
+          break
+      }
+    },
+
+    onClose: () => {
+      console.log("Left poll room")
+    }
+  })
+
+  const applyPatch = (patch) => {
+    //websocket
+    setPoll(prev => {
+      if (!prev) return prev
+
+      return {
+        ...prev,
+        ...patch,
+        content: {
+          ...prev.content,
+          ...patch.content
+        },
+        meta: {
+          ...prev.meta,
+          ...patch.meta
+        }
+      }
+    })
+  }
 
   // ---------- SHARE ----------
   const sharePoll = async () => {

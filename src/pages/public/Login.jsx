@@ -1,11 +1,11 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { API } from "../../api/client"
 import { useAuth } from "../../hooks/useAuth.jsx"
 
 export default function Login() {
   const navigate = useNavigate()
-  const { setUser } = useAuth()
+  const { user, setUser, ready } = useAuth()
 
   const [form, setForm] = useState({
     identifier: "",
@@ -15,7 +15,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // 👈 back to landing always
+  // ---------- AUTO REDIRECT IF ALREADY LOGGED ----------
+  useEffect(() => {
+    if (ready && user) {
+      navigate("/home", { replace: true })
+    }
+  }, [ready, user, navigate])
+
+  // 👈 back to landing
   const goBack = () => {
     navigate("/", { replace: true })
   }
@@ -26,6 +33,7 @@ export default function Login() {
       [e.target.name]: e.target.value
     }))
   }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
@@ -33,7 +41,10 @@ export default function Login() {
 
     try {
       const res = await API.post("/b1/auth/login", form)
-      setUser(res.data.user)   // <- directly use login response
+
+      // login response already contains user
+      setUser(res.data.user)
+
       navigate("/home", { replace: true })
 
     } catch (err) {
@@ -48,6 +59,8 @@ export default function Login() {
     }
   }
 
+  // ---------- WAIT UNTIL SESSION CHECK FINISH ----------
+  if (!ready) return null
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0b0f19] text-white px-4 relative">
