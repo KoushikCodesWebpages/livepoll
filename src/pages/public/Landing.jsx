@@ -7,43 +7,25 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">
       {/* NAVBAR */}
-      <nav className="flex justify-between items-center px-4 md:px-20 py-4 border-b border-white/10">
+      <nav className="flex flex-wrap justify-between items-center gap-3 px-4 md:px-20 py-4 border-b border-white/10">
         <h1 className="text-lg md:text-xl font-semibold tracking-wide">
           LivePoll
         </h1>
 
-        {/* MOBILE MENU BUTTON */}
-        <button
-          className="md:hidden p-2 rounded-lg bg-white/10"
-          onClick={() => setOpen(!open)}
-        >
-          ☰
-        </button>
+        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+          <a href="#how" className="px-3 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10">
+            How it works
+          </a>
 
-        {/* DESKTOP MENU */}
-        <div className="hidden md:flex items-center gap-6 text-sm">
-          <a href="#features" className="text-gray-300 hover:text-white">Features</a>
-          <a href="#how" className="text-gray-300 hover:text-white">How it works</a>
-
-          <Link to="/login" className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20">
+          <Link to="/login" className="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20">
             Login
           </Link>
 
-          <Link to="/signup" className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500">
-            Start Free
+          <Link to="/signup" className="px-3 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 font-medium">
+            Register
           </Link>
         </div>
       </nav>
-
-      {/* MOBILE MENU */}
-      {open && (
-        <div className="md:hidden px-4 py-4 border-b border-white/10 space-y-3 text-sm bg-[#0b0f19]">
-          <a href="#features" className="block text-gray-300">Features</a>
-          <a href="#how" className="block text-gray-300">How it works</a>
-          <Link to="/login" className="block px-4 py-2 rounded-lg bg-white/10">Login</Link>
-          <Link to="/signup" className="block px-4 py-2 rounded-lg bg-indigo-600">Start Free</Link>
-        </div>
-      )}
 
       {/* HERO */}
       <section className="text-center py-20 md:py-28 px-4 md:px-6">
