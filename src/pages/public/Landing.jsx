@@ -1,29 +1,57 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 
 export default function Landing() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const go = (path) => {
+    setLoading(true);
+    setTimeout(() => navigate(path), 200);
+  };
+  useEffect(() => {
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+      link.addEventListener("click", function (e) {
+        const target = document.querySelector(this.getAttribute("href"));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+
+    return () => {
+      links.forEach(link => {
+        link.replaceWith(link.cloneNode(true));
+      });
+    };
+  }, []);
   const [open, setOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">
       {/* NAVBAR */}
-      <nav className="flex flex-wrap justify-between items-center gap-3 px-4 md:px-20 py-4 border-b border-white/10">
-        <h1 className="text-lg md:text-xl font-semibold tracking-wide">
+      <nav className="flex justify-between items-center px-4 py-3 border-b border-white/10">
+        <h1 className="text-base md:text-xl font-semibold tracking-wide">
           LivePoll
         </h1>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-          <a href="#how" className="px-3 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10">
-            How it works
+        <div className="ml-auto flex items-center gap-3 text-xs md:text-sm">
+          <a href="#features" className="hidden sm:inline text-gray-300 hover:text-white">Features</a>
+          <a href="#how" className="px-2 py-1 md:px-0 md:py-0 rounded-full md:rounded-none bg-white/5 md:bg-transparent border border-white/10 md:border-none text-gray-300 hover:text-white">
+            <span className="hidden md:inline">How it works</span>
+            <span className="md:hidden">?</span>
           </a>
 
-          <Link to="/login" className="px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20">
+          <button onClick={() => go('/login')} className="flex items-center justify-center md:px-4 md:py-2 px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20">
             Login
-          </Link>
+          </button>
 
-          <Link to="/signup" className="px-3 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 font-medium">
-            Register
-          </Link>
+          <button onClick={() => go('/signup')} className="flex items-center justify-center md:px-4 md:py-2 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-medium">
+            Sign up
+          </button>
         </div>
       </nav>
 
@@ -43,14 +71,14 @@ export default function Landing() {
         <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
           <Link
             to="/signup"
-            className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-lg font-medium"
+            className="w-1/2 md:w-auto mx-auto md:mx-0 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-base font-medium"
           >
             Create a Poll
           </Link>
 
           <Link
             to="/login"
-            className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-lg"
+            className="w-1/2 md:w-auto mx-auto md:mx-0 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-base"
           >
             Join a Poll
           </Link>
@@ -126,6 +154,12 @@ export default function Landing() {
           Made by Koushik ✨
         </div>
       </footer>
+
+      {loading && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+        </div>
+      )}
     </div>
   );
 }
