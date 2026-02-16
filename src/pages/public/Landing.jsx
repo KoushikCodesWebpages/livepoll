@@ -1,17 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 
+import { useEffect, useState } from "react";
+import NameBadge from "../../components/ui/NameBadge"
 
 export default function Landing() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
+
+  
   const go = (path) => {
     setLoading(true);
     setTimeout(() => navigate(path), 200);
   };
+  // glow effect for "Koushik" while scrolling
+ // smooth scroll for anchor links
   useEffect(() => {
     const links = document.querySelectorAll('a[href^="#"]');
+
     links.forEach(link => {
       link.addEventListener("click", function (e) {
         const target = document.querySelector(this.getAttribute("href"));
@@ -28,6 +34,7 @@ export default function Landing() {
       });
     };
   }, []);
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -110,7 +117,7 @@ export default function Landing() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="scroll-mt-28 max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-20">
+      <section id="features" className=" max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-20">
         <h3 className="text-2xl md:text-3xl font-semibold text-center mb-10 md:mb-14">Features</h3>
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
@@ -132,7 +139,7 @@ export default function Landing() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="bg-white/5 py-16 md:py-20 px-4 md:px-6 scroll-mt-28">
+      <section id="how" className="bg-white/5 py-16 md:py-20 px-4 md:px-6 ">
         <div className="max-w-5xl mx-auto text-center">
           <h3 className="text-2xl md:text-3xl font-semibold mb-10 md:mb-14">How it works</h3>
 
@@ -171,19 +178,29 @@ export default function Landing() {
         </Link>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 py-10 text-center text-gray-500 text-sm relative">
-        <p>© {new Date().getFullYear()} LivePoll. All rights reserved.</p>
-        <div className="mt-4 inline-block px-4 py-1 rounded-full bg-gradient-to-r from-pink-500 via-yellow-400 to-indigo-500 text-black font-semibold animate-pulse">
-          Made by Koushik ✨
-        </div>
-      </footer>
+    
+    {/* FOOTER */}
+    {/* FOOTER */}
+    <footer className="border-t border-white/10 mt-20 py-16 text-center text-gray-400 text-sm">
 
-      {loading && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+      <div className="max-w-4xl mx-auto px-6 space-y-8">
+
+        <p>© {new Date().getFullYear()} LivePoll. All rights reserved.</p>
+
+        {/* SIGNATURE BADGE */}
+        <div className="flex justify-center">
+          <NameBadge />
         </div>
-      )}
-    </div>
-  );
-}
+
+      </div>
+    </footer>
+
+
+          {loading && (
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+            </div>
+          )}
+        </div>
+      );
+    }
