@@ -12,7 +12,7 @@ import Home from "../pages/dashboard/Home"
 import MyPolls from "../pages/dashboard/MyPolls"
 import CreatePoll from "../pages/dashboard/CreatePoll"
 import EditPoll from "../pages/dashboard/EditPoll"
-import SharePoll from "../pages/dashboard/SharePoll"
+import SharePoll from "../pages/public/SharePoll"
 
 // poll
 import Poll from "../pages/poll/Poll"
@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
       { path: "/edit/:pollId", element: <EditPoll />, loader: pollLoader },
       { path: "/poll/:pollId", element: <Poll />, loader: pollLoader },
 
-      { path: "/share/:pollId", element: <SharePoll /> },
+      { path: "/share", element: <SharePoll /> },
       { path: "/results/:pollId", element: <Result /> }
     ]
   },

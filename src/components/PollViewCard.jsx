@@ -1,40 +1,60 @@
-import { ArrowLeft, Pencil, Globe, Lock, Users } from "lucide-react";
+import { ArrowLeft, Pencil, Globe, Lock, Users, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import ToggleBadge from "../components/ui/ToggleBadge";
 import { useMemo } from "react";
+import { API } from "../api/client";
+import { useToast } from "../components/ui/ToastProvider";
 
 export default function PollViewCard({ poll }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const isOwner = user?.id === poll?.owner_id;
 
+  // ---------- SHARE ----------
+  const sharePoll = async () => {
+    try {
+      const res = await API.post(`/b1/poll/${poll.poll_id}/share`, {
+        mode: "infinite",
+        type: "view",
+        uses: 0
+      });
+
+      // backend returns { link: "/share?token=JWT" }
+      const link = res.data?.link;
+
+      if (!link) throw new Error("No link returned");
+
+      const shareUrl = `${window.location.origin}${link}`;
+
+      await navigator.clipboard.writeText(shareUrl);
+
+      toast.show("Share link copied 🔗");
+
+    } catch (err) {
+      console.error(err);
+      toast.show("Failed to create share link");
+    }
+  };
+
+
   // ---------- ACCESS TYPE RESOLVER ----------
-const accessType = useMemo(() => {
-  const access = poll?.access;
-  if (!access) return "public";
+  const accessType = useMemo(() => {
+    const access = poll?.access;
+    if (!access) return "public";
 
-  const v = (access.visibility || "").toLowerCase();
-  const hasEmails = Array.isArray(access.allowed_emails) && access.allowed_emails.length > 0;
-  const requireLogin = access.require_login === true;
+    const v = (access.visibility || "").toLowerCase();
+    const hasEmails = Array.isArray(access.allowed_emails) && access.allowed_emails.length > 0;
+    const requireLogin = access.require_login === true;
 
-  // WHITELIST (email list present)
-  if (hasEmails) return "whitelisted";
+    if (hasEmails) return "whitelisted";
+    if (!requireLogin && v !== "public" && v !== "" && !v.includes("auth")) return "private";
+    if (requireLogin || v.includes("auth")) return "authenticated";
 
-  // PRIVATE (not public AND not authenticated AND not whitelist)
-  if (
-    !requireLogin &&
-    v !== "public" &&
-    v !== "" &&
-    !v.includes("auth")
-  ) return "private";
-
-  // AUTHENTICATED USERS
-  if (requireLogin || v.includes("auth")) return "authenticated";
-
-  return "public";
-}, [poll]);
+    return "public";
+  }, [poll]);
 
   const accessConfig = {
     public: {
@@ -75,13 +95,25 @@ const accessType = useMemo(() => {
         </button>
 
         {isOwner && (
-          <button
-            onClick={() => navigate(`/edit/${poll?.poll_id}`)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500 transition"
-          >
-            <Pencil size={16} />
-            Edit
-          </button>
+          <div className="flex items-center gap-3">
+
+            <button
+              onClick={sharePoll}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 rounded-lg hover:bg-emerald-500 transition"
+            >
+              <Share2 size={16} />
+              Share
+            </button>
+
+            <button
+              onClick={() => navigate(`/edit/${poll?.poll_id}`)}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500 transition"
+            >
+              <Pencil size={16} />
+              Edit
+            </button>
+
+          </div>
         )}
       </div>
 
@@ -92,9 +124,7 @@ const accessType = useMemo(() => {
             {poll?.content?.question}
           </h1>
 
-          <span
-            className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}
-          >
+          <span className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
             <AccessIcon size={12} />
             {accessConfig[accessType].label}
           </span>
@@ -129,9 +159,7 @@ const accessType = useMemo(() => {
 
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Max votes per user</span>
-            <span className="font-medium">
-              {poll?.vote?.max_votes_per_user ?? 1}
-            </span>
+            <span className="font-medium">{poll?.vote?.max_votes_per_user ?? 1}</span>
           </div>
 
           <ToggleBadge label="Allow change vote" value={poll?.vote?.allow_change_vote} />
@@ -154,9 +182,7 @@ const accessType = useMemo(() => {
 
       {/* META FOOTER */}
       <div className="text-xs text-gray-500 text-center pt-4 border-t border-white/10">
-        Created {poll?.meta?.created_at
-          ? new Date(poll.meta.created_at).toLocaleString()
-          : "—"} •
+        Created {poll?.meta?.created_at ? new Date(poll.meta.created_at).toLocaleString() : "—"} •
         Total votes {poll?.meta?.total_votes ?? 0} •
         Views {poll?.meta?.total_views ?? 0}
       </div>
