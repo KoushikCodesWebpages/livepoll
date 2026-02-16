@@ -26,16 +26,14 @@ export default function Login() {
       [e.target.name]: e.target.value
     }))
   }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
     setLoading(true)
 
     try {
-      await API.post("/b1/auth/login", form)
-      const res = await API.get("/b1/auth/session")
-      setUser(res.data)
+      const res = await API.post("/b1/auth/login", form)
+      setUser(res.data.user)   // <- directly use login response
       navigate("/home", { replace: true })
 
     } catch (err) {
@@ -50,6 +48,7 @@ export default function Login() {
     }
   }
 
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0b0f19] text-white px-4 relative">
 
@@ -63,12 +62,12 @@ export default function Login() {
 
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6"
+        className="animate-card w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6"
       >
         <h2 className="text-3xl font-semibold text-center">Login</h2>
 
         {error && (
-          <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">
+          <div className="animate-shake text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">
             {error}
           </div>
         )}

@@ -11,7 +11,7 @@ export default function Landing() {
   
   const go = (path) => {
     setLoading(true);
-    setTimeout(() => navigate(path), 200);
+    navigate(path);
   };
   // glow effect for "Koushik" while scrolling
  // smooth scroll for anchor links

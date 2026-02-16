@@ -2,10 +2,12 @@ import { Navigate, Outlet } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth.jsx"
 
 export default function Protected() {
-const { user, loading } = useAuth()
+  const { user, ready } = useAuth()
 
-if (loading) return <div className="p-10">Loading...</div>
-if (!user) return <Navigate to="/login" replace />
+  // wait until session resolved
+  if (!ready) return null
 
-return <Outlet />
+  if (!user) return <Navigate to="/login" replace />
+
+  return <Outlet />
 }

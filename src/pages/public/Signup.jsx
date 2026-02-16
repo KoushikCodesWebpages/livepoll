@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { API } from "../../api/client";
+import { useAuth } from "../../hooks/useAuth.jsx"
 
 export default function Signup() {
   const navigate = useNavigate();
-
+  const { setUser } = useAuth()
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -27,25 +28,36 @@ export default function Signup() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+  e.preventDefault()
+  setError("")
+  setSuccess("")
+  setLoading(true)
 
-    try {
-      await API.post("/b1/auth/register", form);
-      setSuccess("Account created successfully! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1500);
-    } catch (err) {
-      const message =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        "Registration failed";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    // 1) create account
+    await API.post("/b1/auth/register", form)
+
+    // 2) auto login
+    const res = await API.post("/b1/auth/login", {
+      identifier: form.email,
+      password: form.password,
+    })
+
+    setUser(res.data.user)
+
+    navigate("/home", { replace: true })
+
+  } catch (err) {
+    const message =
+      err?.response?.data?.message ||
+      err?.response?.data?.error ||
+      "Registration failed"
+
+    setError(message)
+  } finally {
+    setLoading(false)
+  }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0b0f19] text-white px-4 relative">
@@ -58,7 +70,7 @@ export default function Signup() {
 
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6"
+        className="animate-card w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6"
       >
         <h2 className="text-3xl font-semibold text-center">Create Account</h2>
 
