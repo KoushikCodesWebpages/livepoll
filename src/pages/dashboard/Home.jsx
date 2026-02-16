@@ -1,7 +1,7 @@
 import Navbar from "../../components/Navbar.jsx"
 import useMyPolls from "../../hooks/useMyPoll.jsx"
 import PollCard from "../../components/PollCard.jsx"
-import Loader from "../../components/ui/Loader"
+// import Loader from "../../components/ui/Loader"
 
 export default function Home() {
   const { polls, loading, error } = useMyPolls()
@@ -13,7 +13,7 @@ export default function Home() {
       <div className="max-w-5xl mx-auto p-6">
         <h2 className="text-2xl font-semibold mb-6">My Polls</h2>
 
-         {loading && <Loader text="Fetching poll..." />}
+         {/* {loading && <Loader text="Fetching poll..." />} */}
         {error && <div className="text-red-400">{error}</div>}
 
         {!loading && polls.length === 0 && (
