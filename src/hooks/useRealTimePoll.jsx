@@ -1,4 +1,4 @@
-
+import {API_BASE,WS_BASE} from "../api/client"
 
 import { useEffect, useRef, useState } from "react"
 import { getWsToken } from "../api/ws"
@@ -36,7 +36,7 @@ export function useRealTimePoll(pollId, handlers) {
           return
         }
 
-        const url = `ws://localhost:8080/ws/poll/${pollId}?token=${token}`
+        const url = `${WS_BASE}/ws/poll/${pollId}?token=${token}`
         console.log("[WS] connecting ->", url)
 
         const ws = new WebSocket(url)

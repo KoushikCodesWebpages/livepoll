@@ -1,7 +1,7 @@
 import axios from "axios"
 import { showLoader, hideLoader } from "../utils/loaderBridge"
 
-export const API_BASE = "http://localhost:8080"
+export const API_BASE = "https://realtime-poll.clqit.in"
 export const WS_BASE = API_BASE.replace(/^http/, "ws")
 
 export const API = axios.create({
