@@ -116,21 +116,21 @@ onVoteDelta: (data) => {
 
 // ---------- SUBMIT VOTE ----------
 const submitVote = async () => {
-  if (!selected || voting) return;
+  if (!selected || voting || !poll?.poll_id) return;
 
   setVoting(true);
   setError("");
   setSuccess("");
 
   try {
-    await API.post("/b1/vote", {
-      token,
+    await API.post("/b1/poll/share/vote", {
+      poll_id: poll.poll_id,
       option_id: selected,
     });
 
     setSuccess("Vote submitted");
 
-    // optimistic lock after voting
+    // lock voting locally
     setPoll(prev => ({
       ...prev,
       viewer: {
