@@ -1,41 +1,24 @@
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 
-export function useSocket(url, { onMessage, onOpen, onClose } = {}) {
-  const socketRef = useRef(null)
+export default function useSocket() {
 
-  useEffect(() => {
-    if (!url) return
+  const wsRef = useRef(null)
 
+  function connect(path) {
+
+    const url = `${import.meta.env.VITE_WS_URL}${path}`
     const ws = new WebSocket(url)
-    socketRef.current = ws
 
-    ws.onopen = () => {
-      onOpen?.(ws)
-    }
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        onMessage?.(data, ws)
-      } catch (e) {
-        console.error("Invalid WS message", e)
-      }
-    }
-
-    ws.onclose = () => {
-      onClose?.()
-    }
-
-    return () => {
-      ws.close()
-      socketRef.current = null
-    }
-  }, [url])
-
-  const send = (payload) => {
-    if (!socketRef.current) return
-    socketRef.current.send(JSON.stringify(payload))
+    wsRef.current = ws
+    return ws
   }
 
-  return { send }
+  function disconnect() {
+    if (wsRef.current) {
+      wsRef.current.close()
+      wsRef.current = null
+    }
+  }
+
+  return { connect, disconnect }
 }

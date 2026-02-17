@@ -18,32 +18,47 @@ import Poll from "../pages/poll/Poll"
 import ShareVote from "../pages/poll/ShareVote"
 import Result from "../pages/poll/Result"
 
+import AppLayout from "../components/Layout"
 
 // ---------- LOADER ----------
 async function pollLoader({ params }) {
   const res = await API.get(`/b1/poll/${params.pollId}`)
-  return res.data
+  return {
+    ...res.data.poll,
+    viewer: res.data.viewer
+  }
 }
 
+
 export const router = createBrowserRouter([
+  // PUBLIC
   { path: "/", element: <Landing /> },
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
 
+  // AUTHENTICATED APP
   {
-    element: <Protected />,
+    element: <AppLayout />,   // ⭐ THEME LAYER
     children: [
-      { path: "/home", element: <Home /> },
-      { path: "/create", element: <CreatePoll /> },
-
-      // ⭐ now data loads BEFORE render
-      { path: "/edit/:pollId", element: <EditPoll />, loader: pollLoader },
-      { path: "/poll/:pollId", element: <Poll />, loader: pollLoader },
-
-      { path: "/share", element: <SharePoll /> },
-      { path: "/results/:pollId", element: <Result /> }
+      {
+        element: <Protected />,   // ⭐ AUTH LAYER
+        children: [
+          { path: "/home", element: <Home /> },
+          { path: "/create", element: <CreatePoll /> },
+          { path: "/edit/:pollId", element: <EditPoll />, loader: pollLoader },
+          { path: "/poll/:pollId", element: <Poll />, loader: pollLoader },
+          { path: "/share", element: <SharePoll /> },
+          { path: "/results/:pollId", element: <Result /> }
+        ]
+      }
     ]
   },
 
-  { path: "/s/:pollId", element: <ShareVote />, loader: pollLoader }
+  // PUBLIC SHARE PAGE (NO AUTH BUT STILL NEED THEME)
+  {
+    element: <AppLayout />,
+    children: [
+      { path: "/s/:pollId", element: <ShareVote />, loader: pollLoader }
+    ]
+  }
 ])

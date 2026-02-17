@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft } from "lucide-react"
 
-import Navbar from "../../components/Navbar"
+
 import { API } from "../../api/client"
 import { useToast } from "../../components/ui/ToastProvider"
 import { computeSchedule } from "../../components/poll/ScheduleSettings"
@@ -128,7 +128,6 @@ export default function CreatePoll() {
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">
 
-      <Navbar />
 
       {/* BACK */}
       <div className="max-w-3xl mx-auto px-6 pt-6">

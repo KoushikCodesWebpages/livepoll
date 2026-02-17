@@ -1,32 +1,37 @@
 import axios from "axios"
-import { getLoader } from "../utils/loaderBridge"
+import { showLoader, hideLoader } from "../utils/loaderBridge"
+
+export const API_BASE = "http://localhost:8080"
+export const WS_BASE = API_BASE.replace(/^http/, "ws")
 
 export const API = axios.create({
-  // baseURL: "https://realtime-poll.clqit.in",
-  baseURL: "http://localhost:8080",
+  baseURL: API_BASE,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 })
 
-// REQUEST START
+/* ---------------- LOADER INTERCEPTORS ---------------- */
 API.interceptors.request.use(config => {
-  const loader = getLoader()
-  loader?.show()
+  showLoader()
   return config
 })
 
-// REQUEST END
 API.interceptors.response.use(
-  response => {
-    const loader = getLoader()
-    loader?.hide()
-    return response
+  res => {
+    hideLoader()
+    return res
   },
-  error => {
-    const loader = getLoader()
-    loader?.hide()
-    return Promise.reject(error)
+  err => {
+    hideLoader()
+    return Promise.reject(err)
   }
 )
+
+
+/* ---------------- WS HELPER ---------------- */
+export function createPollSocket(pollId) {
+  if (!pollId) return null
+  return `${WS_BASE}/ws/poll/${pollId}`
+}

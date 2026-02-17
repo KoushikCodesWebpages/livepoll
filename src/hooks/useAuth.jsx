@@ -5,7 +5,8 @@ const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [ready, setReady] = useState(false) // <- important
+  const [wsToken, setWsToken] = useState(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     let mounted = true
@@ -13,21 +14,27 @@ export function AuthProvider({ children }) {
     const restore = async () => {
       try {
         const res = await API.get("/b1/auth/session")
-        if (mounted) setUser(res.data)
+        if (!mounted) return
+
+        setUser(res.data.user)
+
       } catch {
-        if (mounted) setUser(null)
+        if (mounted) {
+          setUser(null)
+          setWsToken(null)
+        }
       } finally {
         if (mounted) setReady(true)
       }
     }
 
     restore()
-
     return () => { mounted = false }
+
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, setUser, ready }}>
+    <AuthContext.Provider value={{ user, setUser, wsToken, ready }}>
       {children}
     </AuthContext.Provider>
   )
@@ -36,4 +43,3 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext)
 }
-

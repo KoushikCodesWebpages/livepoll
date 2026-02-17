@@ -1,7 +1,13 @@
-let loaderInstance = null
+let loader = null
 
-export const setLoader = (instance) => {
-  loaderInstance = instance
+export function setLoader(impl) {
+  loader = impl
 }
 
-export const getLoader = () => loaderInstance
+export function showLoader() {
+  loader?.show()
+}
+
+export function hideLoader() {
+  loader?.hide()
+}
