@@ -20,12 +20,13 @@ const [success, setSuccess] = useState("");
 
 const gated = !!access;
 
+
 // ---------- LOAD POLL ----------
 useEffect(() => {
 if (!token) {
-setError("Invalid share link");
-setLoading(false);
-return;
+  setError("Invalid share link");
+  setLoading(false);
+  return;
 }
 
 const load = async () => {
@@ -62,13 +63,14 @@ const load = async () => {
 
 load();
 
-
 }, [token]);
+
 
 // ---------- REALTIME ----------
 const ws = useSharePollWs(gated ? null : poll, {
+
 onState: (data) => {
-if (!data) return;
+  if (!data) return;
 
   setPoll(prev => {
     if (!prev?.content?.options) return prev;
@@ -109,169 +111,168 @@ onVoteDelta: (data) => {
   }));
 }
 
-
 });
 
-  // ---------- LOADING ----------
-  if (loading)
-    return (
-      <div className="min-h-screen bg-[#0b0f19] text-white flex items-center justify-center">
-        Loading poll...
-      </div>
-    );
 
-  // ---------- ACCESS BLOCK UI ----------
-  if (gated) {
+// ---------- SUBMIT VOTE ----------
+const submitVote = async () => {
+  if (!selected || voting) return;
 
-    const loginRedirect =
-      `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+  setVoting(true);
+  setError("");
+  setSuccess("");
 
-    let title = "Access Restricted";
-    let description = message;
+  try {
+    await API.post("/b1/poll/share/vote", {
+      token,
+      option_id: selected,
+    });
 
-    if (access === "login_required") {
-      title = "Login required";
-      description = message || "Please sign in to view this poll";
-    }
+    setSuccess("Vote submitted");
 
-    if (access === "whitelist_required") {
-      title = "Authorized account required";
-      description = message || "Please login with an approved email";
-    }
-
-    if (access === "not_whitelisted") {
-      title = "You cannot participate";
-      description = message || "You are not whitelisted for this poll";
-    }
-
-    // ---------- SUBMIT VOTE ----------
-    const submitVote = async () => {
-      if (!selected || voting) return;
-
-      setVoting(true);
-      setError("");
-      setSuccess("");
-
-      try {
-        const res = await API.post("/b1/poll/share/vote", {
-          token,
-          option_id: selected,
-        });
-
-        setSuccess("Vote submitted");
-
-        // optimistic update (instant feedback)
-        setPoll(prev => ({
-          ...prev,
-          viewer: {
-            ...prev.viewer,
-            selected_option: selected,
-            can_vote: false,
-          }
-        }));
-
-      } catch (err) {
-        setError(err?.response?.data?.issue || "Vote failed");
-      } finally {
-        setVoting(false);
+    // optimistic lock after voting
+    setPoll(prev => ({
+      ...prev,
+      viewer: {
+        ...prev.viewer,
+        selected_option: selected,
+        can_vote: false,
       }
-    };
+    }));
 
-    return (
-      <div className="min-h-screen bg-[#0b0f19] text-white flex items-center justify-center p-6">
-        <div className="max-w-md w-full text-center space-y-6">
+  } catch (err) {
+    setError(err?.response?.data?.issue || "Vote failed");
+  } finally {
+    setVoting(false);
+  }
+};
 
-          <div className="text-2xl font-semibold">{title}</div>
-          <div className="text-gray-400">{description}</div>
 
-          {/* preview */}
-          <div className="space-y-3 blur-sm pointer-events-none select-none">
-            {[1,2,3].map(i => (
-              <div key={i} className="px-4 py-3 rounded-xl bg-white/10 border border-white/10">
-                Option {i}
-              </div>
-            ))}
-          </div>
+// ---------- LOADING ----------
+if (loading)
+  return (
+    <div className="min-h-screen bg-[#0b0f19] text-white flex items-center justify-center">
+      Loading poll...
+    </div>
+  );
 
-          {/* LOGIN BUTTON (not logged in OR whitelist login needed) */}
-          {(access === "login_required" || access === "whitelist_required") && (
-            <button
-              onClick={() => navigate(loginRedirect)}
-              className="px-6 py-3 bg-indigo-600 rounded-xl hover:bg-indigo-500 w-full"
-            >
-              Sign in to continue
-            </button>
-          )}
 
-          {/* SWITCH ACCOUNT BUTTON */}
-          {access === "not_whitelisted" && (
-            <div className="space-y-3">
+// ---------- ACCESS BLOCK UI ----------
+if (gated) {
 
-              <button
-                onClick={async () => {
-                  try {
-                    await API.post("/b1/auth/logout");
-                  } catch {}
+  const loginRedirect =
+    `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 
-                  navigate(loginRedirect);
-                }}
-                className="px-6 py-3 bg-amber-600 rounded-xl hover:bg-amber-500 w-full"
-              >
-                Login with another account
-              </button>
+  let title = "Access Restricted";
+  let description = message;
 
-              <div className="text-xs text-gray-500">
-                The current account does not have permission to access this poll
-              </div>
-
-            </div>
-          )}
-
-        </div>
-      </div>
-    );
+  if (access === "login_required") {
+    title = "Login required";
+    description = message || "Please sign in to view this poll";
   }
 
-  // ---------- NORMAL POLL VIEW ----------
+  if (access === "whitelist_required") {
+    title = "Authorized account required";
+    description = message || "Please login with an approved email";
+  }
+
+  if (access === "not_whitelisted") {
+    title = "You cannot participate";
+    description = message || "You are not whitelisted for this poll";
+  }
+
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-white p-6">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#0b0f19] text-white flex items-center justify-center p-6">
+      <div className="max-w-md w-full text-center space-y-6">
 
-        <h1 className="text-3xl font-semibold text-center">
-          {poll?.content?.question}
-        </h1>
+        <div className="text-2xl font-semibold">{title}</div>
+        <div className="text-gray-400">{description}</div>
 
-        {poll?.behavior?.show_live_results && (
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
-            <span className={`w-2 h-2 rounded-full ${
-              ws?.status === "open" ? "bg-green-400 animate-pulse" : "bg-gray-500"
-            }`} />
-            {ws?.status === "open"
-              ? <span>Live · {ws.viewers} watching</span>
-              : <span>Connecting...</span>}
-          </div>
-        )}
-
-        <div className="space-y-3">
-          {poll?.content?.options?.map(opt => (
-            <button
-              key={opt.option_id}
-              disabled={!poll.viewer?.can_vote}
-              onClick={() => setSelected(opt.option_id)}
-              className="w-full text-left px-4 py-3 rounded-xl border bg-white/10 border-white/10 hover:bg-white/20"
-            >
-              {opt.text}
-
-              {poll.viewer?.can_view_results && (
-                <span className="float-right text-sm text-gray-300">
-                  {opt.votes ?? 0} votes
-                </span>
-              )}
-            </button>
+        <div className="space-y-3 blur-sm pointer-events-none select-none">
+          {[1,2,3].map(i => (
+            <div key={i} className="px-4 py-3 rounded-xl bg-white/10 border border-white/10">
+              Option {i}
+            </div>
           ))}
         </div>
 
-        {poll.viewer?.can_vote && (
+        {(access === "login_required" || access === "whitelist_required") && (
+          <button
+            onClick={() => navigate(loginRedirect)}
+            className="px-6 py-3 bg-indigo-600 rounded-xl hover:bg-indigo-500 w-full"
+          >
+            Sign in to continue
+          </button>
+        )}
+
+        {access === "not_whitelisted" && (
+          <div className="space-y-3">
+            <button
+              onClick={async () => {
+                try { await API.post("/b1/auth/logout"); } catch {}
+                navigate(loginRedirect);
+              }}
+              className="px-6 py-3 bg-amber-600 rounded-xl hover:bg-amber-500 w-full"
+            >
+              Login with another account
+            </button>
+
+            <div className="text-xs text-gray-500">
+              The current account does not have permission to access this poll
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+
+// ---------- NORMAL POLL VIEW ----------
+return (
+  <div className="min-h-screen bg-[#0b0f19] text-white p-6">
+    <div className="max-w-2xl mx-auto space-y-6">
+
+      <h1 className="text-3xl font-semibold text-center">
+        {poll?.content?.question}
+      </h1>
+
+      {poll?.behavior?.show_live_results && (
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+          <span className={`w-2 h-2 rounded-full ${
+            ws?.status === "open" ? "bg-green-400 animate-pulse" : "bg-gray-500"
+          }`} />
+          {ws?.status === "open"
+            ? <span>Live · {ws.viewers} watching</span>
+            : <span>Connecting...</span>}
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {poll?.content?.options?.map(opt => (
+          <button
+            key={opt.option_id}
+            disabled={!poll.viewer?.can_vote}
+            onClick={() => setSelected(opt.option_id)}
+            className={`w-full text-left px-4 py-3 rounded-xl border transition
+              ${selected === opt.option_id
+                ? "bg-indigo-600/40 border-indigo-400"
+                : "bg-white/10 border-white/10 hover:bg-white/20"}`}
+          >
+            {opt.text}
+
+            {poll.viewer?.can_view_results && (
+              <span className="float-right text-sm text-gray-300">
+                {opt.votes ?? 0} votes
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {poll.viewer?.can_vote && (
+        <>
           <button
             onClick={submitVote}
             disabled={!selected || voting}
@@ -279,15 +280,17 @@ onVoteDelta: (data) => {
           >
             {voting ? "Submitting vote..." : "Submit Vote"}
           </button>
-        )}
-        {error && (
-        <div className="text-red-400 text-sm text-center">{error}</div>
-        )}
-        {success && (
-          <div className="text-green-400 text-sm text-center">{success}</div>
-        )}
 
-      </div>
+          {error && (
+            <div className="text-red-400 text-sm text-center">{error}</div>
+          )}
+          {success && (
+            <div className="text-green-400 text-sm text-center">{success}</div>
+          )}
+        </>
+      )}
+
     </div>
-  );
+  </div>
+);
 }
