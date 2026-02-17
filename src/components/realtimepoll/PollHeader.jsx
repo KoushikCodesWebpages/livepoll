@@ -13,6 +13,27 @@ export default function PollHeader({ poll, wsStatus }) {
 
   const isOwner = user?.id === poll?.owner_id
   const hasVotes = (poll?.meta?.total_votes ?? 0) > 0
+  // ---------- POLL STATUS ----------
+  const now = Date.now()
+
+  const start = poll?.meta?.start_at
+    ? new Date(poll.meta.start_at).getTime()
+    : null
+
+  const expiry = poll?.meta?.expires_at
+    ? new Date(poll.meta.expires_at).getTime()
+    : null
+
+  let pollStatus = "Running"
+  let pollStatusStyle = "bg-green-500/20 text-green-300 border-green-500/30"
+
+  if (expiry && now > expiry) {
+    pollStatus = "Expired"
+    pollStatusStyle = "bg-red-500/20 text-red-300 border-red-500/30"
+  } else if (start && now < start) {
+    pollStatus = "Scheduled"
+    pollStatusStyle = "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
+  }
 
   // ---------- SHARE ----------
   const sharePoll = async () => {
@@ -48,12 +69,32 @@ export default function PollHeader({ poll, wsStatus }) {
     return "public"
   }, [poll])
 
-  const accessConfig = {
-    public: { label: "Public", icon: Globe, style: "bg-green-500/20 text-green-300 border-green-400/30" },
-    authenticated: { label: "Login Required", icon: Users, style: "bg-blue-500/20 text-blue-300 border-blue-400/30" },
-    private: { label: "Private Link", icon: Lock, style: "bg-red-500/20 text-red-300 border-red-400/30" },
-    whitelisted: { label: "Whitelisted", icon: Users, style: "bg-yellow-500/20 text-yellow-300 border-yellow-400/30" },
-  }
+    const accessConfig = {
+      public: {
+        label: "Public",
+        icon: Globe,
+        style: "bg-cyan-500/15 text-cyan-300 border-cyan-400/30"
+      },
+
+      authenticated: {
+        label: "Login Required",
+        icon: Users,
+        style: "bg-indigo-500/15 text-indigo-300 border-indigo-400/30"
+      },
+
+      private: {
+        label: "Private Link",
+        icon: Lock,
+        style: "bg-slate-500/20 text-slate-300 border-slate-400/30"
+      },
+
+      whitelisted: {
+        label: "Whitelisted",
+        icon: Users,
+        style: "bg-orange-500/15 text-orange-300 border-orange-400/30"
+      },
+    }
+
 
   const AccessIcon = accessConfig[accessType].icon
 
@@ -96,15 +137,40 @@ export default function PollHeader({ poll, wsStatus }) {
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 sm:flex-nowrap sm:justify-end mt-3 sm:mt-0">
 
           {/* desktop indicators */}
-          <div className="hidden sm:flex items-center gap-2 text-xs text-gray-300">
-            <span className={`w-2.5 h-2.5 rounded-full ${ws.color} animate-pulse`} />
-            <span>{ws.label}</span>
+          <div className="hidden sm:flex items-center gap-3 text-xs">
+
+            {/* connection */}
+            <div className="flex items-center gap-2 text-gray-300">
+              <span className={`w-2.5 h-2.5 rounded-full ${ws.color} animate-pulse`} />
+              <span>{ws.label} connection</span>
+            </div>
+
+            <span className="text-gray-600">·</span>
+
+            {/* lifecycle */}
+            <span className={`px-2 py-0.5 rounded-full border ${pollStatusStyle}`}>
+              {pollStatus}
+            </span>
+
+            {/* access */}
+            <span className={`flex items-center gap-1 px-3 py-1 rounded-full border ${accessConfig[accessType].style}`}>
+              <AccessIcon size={12} />
+              {accessConfig[accessType].label}
+            </span>
+
           </div>
 
-          <span className={`hidden sm:flex items-center gap-1 px-3 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
-            <AccessIcon size={12} />
-            {accessConfig[accessType].label}
+        <div className="flex items-center gap-2 sm:hidden">
+          {/* <span className={`w-2.5 h-2.5 rounded-full ${ws.color} animate-pulse`} /> */}
+
+          <span className={`px-2 py-0.5 text-xs rounded-full border ${pollStatusStyle}`}>
+            {pollStatus}
           </span>
+
+          <span className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
+            <AccessIcon size={12} />
+          </span>
+        </div>
 
           {isOwner && (
             <>

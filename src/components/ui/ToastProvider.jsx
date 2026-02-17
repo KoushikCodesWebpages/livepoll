@@ -29,7 +29,12 @@ export default function ToastProvider({ children }) {
       {children}
 
       {/* Notification container */}
-      <div className="fixed top-5 right-5 z-[999] flex flex-col gap-3">
+     <div
+        className="fixed right-3 z-[999] flex flex-col gap-3 pointer-events-none"
+        style={{
+          top: "max(env(safe-area-inset-top), 12px)"
+        }}
+      >
         {toasts.map(toast => (
           <Notification
             key={toast.id}
@@ -47,11 +52,15 @@ function Notification({ message, type, onClose }) {
   const colors = {
     success: "border-emerald-500 bg-emerald-500/10 text-emerald-300",
     error: "border-red-500 bg-red-500/10 text-red-300",
-    info: "border-indigo-500 bg-indigo-500/10 text-indigo-300"
+    warning: "border-amber-500 bg-amber-500/10 text-amber-300",
+    info: "border-blue-500 bg-blue-500/10 text-blue-300",
+    live: "border-purple-500 bg-purple-500/10 text-purple-300",
+    system: "border-slate-500 bg-slate-500/10 text-slate-300"
   }
 
   return (
     <div className={`
+      pointer-events-auto
       min-w-[280px] max-w-sm
       border ${colors[type]}
       backdrop-blur-xl
@@ -60,6 +69,7 @@ function Notification({ message, type, onClose }) {
       flex items-start gap-3
       animate-toastIn
     `}>
+
 
       <div className="flex-1 text-sm leading-relaxed">
         {message}

@@ -88,7 +88,9 @@ export default function EditPoll() {
       const res = await API.patch(`/b1/poll/${poll.poll_id}`, payload)
 
       if (res.data?.success === false) {
+        toast.show(res.data?.message || "Action failed", "error")
         throw new Error(res.data?.message || "Update failed")
+        
       }
 
       toast.show("Poll updated ✏️")
@@ -97,7 +99,7 @@ export default function EditPoll() {
 
     } catch (err) {
       console.error(err)
-      setError(err?.response?.data?.issue || "Update failed")
+      setError(err?.response?.data?.issue || "Voting started!")
     } finally {
       setLoading(false)
     }

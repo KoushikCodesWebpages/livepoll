@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-
+import { ArrowLeft, Pencil, Share2, Globe, Lock, Users } from "lucide-react"
 export default function PollCard({ poll }) {
   const navigate = useNavigate()
 
@@ -30,12 +30,39 @@ export default function PollCard({ poll }) {
     status = "Scheduled"
     statusStyle = "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
   }
+  const accessConfig = {
+    public: {
+      label: "Public",
+      icon: Globe,
+      style: "bg-cyan-500/15 text-cyan-300 border-cyan-400/30"
+    },
 
-  const visibility = poll.settings?.anonymous
+    authenticated: {
+      label: "Login Required",
+      icon: Users,
+      style: "bg-indigo-500/15 text-indigo-300 border-indigo-400/30"
+    },
+
+    private: {
+      label: "Private Link",
+      icon: Lock,
+      style: "bg-slate-500/20 text-slate-300 border-slate-400/30"
+    },
+
+    whitelisted: {
+      label: "Whitelisted",
+      icon: Users,
+      style: "bg-orange-500/15 text-orange-300 border-orange-400/30"
+    },
+  }
+
+  const visibility = poll.setting?.anonymous
     ? "Anonymous"
     : poll.settings?.public
     ? "Public"
     : "Private"
+  
+  const access = poll.access?.visibility
 
   return (
     <div
@@ -81,8 +108,8 @@ export default function PollCard({ poll }) {
             {status}
           </span>
 
-          <span className="px-3 py-1 text-xs rounded-full border border-indigo-400/30 bg-indigo-500/20 text-indigo-300">
-            {visibility}
+          <span className={`px-3 py-1 text-xs rounded-full border ${accessConfig[access].style}`}>
+            {access}
           </span>
         </div>
 
