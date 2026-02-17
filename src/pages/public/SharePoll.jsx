@@ -144,6 +144,39 @@ onVoteDelta: (data) => {
       description = message || "You are not whitelisted for this poll";
     }
 
+    // ---------- SUBMIT VOTE ----------
+    const submitVote = async () => {
+      if (!selected || voting) return;
+
+      setVoting(true);
+      setError("");
+      setSuccess("");
+
+      try {
+        const res = await API.post("/b1/poll/share/vote", {
+          token,
+          option_id: selected,
+        });
+
+        setSuccess("Vote submitted");
+
+        // optimistic update (instant feedback)
+        setPoll(prev => ({
+          ...prev,
+          viewer: {
+            ...prev.viewer,
+            selected_option: selected,
+            can_vote: false,
+          }
+        }));
+
+      } catch (err) {
+        setError(err?.response?.data?.issue || "Vote failed");
+      } finally {
+        setVoting(false);
+      }
+    };
+
     return (
       <div className="min-h-screen bg-[#0b0f19] text-white flex items-center justify-center p-6">
         <div className="max-w-md w-full text-center space-y-6">
@@ -246,6 +279,12 @@ onVoteDelta: (data) => {
           >
             {voting ? "Submitting vote..." : "Submit Vote"}
           </button>
+        )}
+        {error && (
+        <div className="text-red-400 text-sm text-center">{error}</div>
+        )}
+        {success && (
+          <div className="text-green-400 text-sm text-center">{success}</div>
         )}
 
       </div>
