@@ -42,13 +42,13 @@ export default function BasicSettings({ form, update }) {
         options={[
           { value: "public", label: "Public" },
           { value: "authenticated", label: "Authenticated users" },
-          { value: "whitelist", label: "Email whitelist" },
-          { value: "link", label: "Private link" }
+          { value: "whitelisted", label: "Email whitelist" },
+          { value: "private", label: "Private link" }
         ]}
       />
 
       {/* WHITELIST */}
-      {visibility === "whitelist" && (
+      {visibility === "whitelisted" && (
         <input
           placeholder="email1@mail.com, email2@mail.com"
           value={allowedEmails}

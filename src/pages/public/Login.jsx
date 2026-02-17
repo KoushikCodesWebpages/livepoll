@@ -1,124 +1,259 @@
+// import { useState, useEffect } from "react"
+// import { Link, useNavigate } from "react-router-dom"
+// import { API } from "../../api/client"
+// import { useAuth } from "../../hooks/useAuth.jsx"
+
+// export default function Login() {
+//   const navigate = useNavigate()
+//   const { user, setUser, ready } = useAuth()
+
+//   const [form, setForm] = useState({
+//     identifier: "",
+//     password: "",
+//   })
+
+//   const [loading, setLoading] = useState(false)
+//   const [error, setError] = useState("")
+
+//   // ---------- AUTO REDIRECT IF ALREADY LOGGED ----------
+//   useEffect(() => {
+//     if (ready && user) {
+//       navigate("/home", { replace: true })
+//     }
+//   }, [ready, user, navigate])
+
+//   // 👈 back to landing
+//   const goBack = () => {
+//     navigate("/", { replace: true })
+//   }
+
+//   const handleChange = (e) => {
+//     setForm(prev => ({
+//       ...prev,
+//       [e.target.name]: e.target.value
+//     }))
+//   }
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault()
+//     setError("")
+//     setLoading(true)
+
+//     try {
+//       const res = await API.post("/b1/auth/login", form)
+
+//       // login response already contains user
+//       setUser(res.data.user)
+
+//       navigate("/home", { replace: true })
+
+//     } catch (err) {
+//       const message =
+//         err?.response?.data?.message ||
+//         err?.response?.data?.error ||
+//         "Invalid credentials"
+
+//       setError(message)
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
+
+//   // ---------- WAIT UNTIL SESSION CHECK FINISH ----------
+//   if (!ready) return null
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-[#0b0f19] text-white px-4 relative">
+
+//       {/* BACK BUTTON */}
+//       <button
+//         onClick={goBack}
+//         className="absolute top-6 left-6 px-3 py-1.5 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/10"
+//       >
+//         ← Back
+//       </button>
+
+//       <form
+//         onSubmit={handleSubmit}
+//         className="animate-card w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6"
+//       >
+//         <h2 className="text-3xl font-semibold text-center">Login</h2>
+
+//         {error && (
+//           <div className="animate-shake text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">
+//             {error}
+//           </div>
+//         )}
+
+//         <input
+//           name="identifier"
+//           placeholder="Email or Username"
+//           value={form.identifier}
+//           onChange={handleChange}
+//           required
+//           className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:border-indigo-500"
+//         />
+
+//         <input
+//           name="password"
+//           type="password"
+//           placeholder="Password"
+//           value={form.password}
+//           onChange={handleChange}
+//           required
+//           className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:border-indigo-500"
+//         />
+
+//         <button
+//           type="submit"
+//           disabled={loading}
+//           className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50"
+//         >
+//           {loading ? "Logging in..." : "Login"}
+//         </button>
+
+//         <p className="text-center text-sm text-gray-400">
+//           Don’t have an account?{" "}
+//           <Link to="/signup" className="text-indigo-400 hover:underline">
+//             Sign up
+//           </Link>
+//         </p>
+//       </form>
+//     </div>
+//   )
+// }
+
+
 import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { API } from "../../api/client"
 import { useAuth } from "../../hooks/useAuth.jsx"
 
 export default function Login() {
-  const navigate = useNavigate()
-  const { user, setUser, ready } = useAuth()
+const navigate = useNavigate()
+const [params] = useSearchParams()
 
-  const [form, setForm] = useState({
-    identifier: "",
-    password: "",
-  })
+const { user, setUser, ready } = useAuth()
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+const redirect = params.get("redirect") // 🔴 NEW
 
-  // ---------- AUTO REDIRECT IF ALREADY LOGGED ----------
-  useEffect(() => {
-    if (ready && user) {
-      navigate("/home", { replace: true })
-    }
-  }, [ready, user, navigate])
+const [form, setForm] = useState({
+identifier: "",
+password: "",
+})
 
-  // 👈 back to landing
-  const goBack = () => {
-    navigate("/", { replace: true })
-  }
+const [loading, setLoading] = useState(false)
+const [error, setError] = useState("")
 
-  const handleChange = (e) => {
-    setForm(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
-  }
+// ---------- AUTO REDIRECT IF ALREADY LOGGED ----------
+useEffect(() => {
+if (ready && user) {
+navigate(redirect || "/home", { replace: true })
+}
+}, [ready, user, navigate, redirect])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+// 👈 back to landing
+const goBack = () => {
+navigate("/", { replace: true })
+}
 
-    try {
-      const res = await API.post("/b1/auth/login", form)
+const handleChange = (e) => {
+setForm(prev => ({
+...prev,
+[e.target.name]: e.target.value
+}))
+}
 
-      // login response already contains user
-      setUser(res.data.user)
+const handleSubmit = async (e) => {
+e.preventDefault()
+setError("")
+setLoading(true)
 
-      navigate("/home", { replace: true })
 
-    } catch (err) {
-      const message =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        "Invalid credentials"
+try {
+  const res = await API.post("/b1/auth/login", form)
 
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }
+  // login response already contains user
+  setUser(res.data.user)
 
-  // ---------- WAIT UNTIL SESSION CHECK FINISH ----------
-  if (!ready) return null
+  // 🔴 IMPORTANT CHANGE
+  navigate(redirect || "/home", { replace: true })
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0b0f19] text-white px-4 relative">
+} catch (err) {
+  const message =
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    "Invalid credentials"
 
-      {/* BACK BUTTON */}
-      <button
-        onClick={goBack}
-        className="absolute top-6 left-6 px-3 py-1.5 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/10"
-      >
-        ← Back
-      </button>
+  setError(message)
+} finally {
+  setLoading(false)
+}
 
-      <form
-        onSubmit={handleSubmit}
-        className="animate-card w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6"
-      >
-        <h2 className="text-3xl font-semibold text-center">Login</h2>
+}
 
-        {error && (
-          <div className="animate-shake text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">
-            {error}
-          </div>
-        )}
+// ---------- WAIT UNTIL SESSION CHECK FINISH ----------
+if (!ready) return null
 
-        <input
-          name="identifier"
-          placeholder="Email or Username"
-          value={form.identifier}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:border-indigo-500"
-        />
+return ( <div className="min-h-screen flex items-center justify-center bg-[#0b0f19] text-white px-4 relative">
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:border-indigo-500"
-        />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50"
-        >
-          {loading ? "Logging in..." : "Login"}
-        </button>
+  {/* BACK BUTTON */}
+  <button
+    onClick={goBack}
+    className="absolute top-6 left-6 px-3 py-1.5 text-sm rounded-lg bg-white/10 hover:bg-white/20 border border-white/10"
+  >
+    ← Back
+  </button>
 
-        <p className="text-center text-sm text-gray-400">
-          Don’t have an account?{" "}
-          <Link to="/signup" className="text-indigo-400 hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </form>
-    </div>
-  )
+  <form
+    onSubmit={handleSubmit}
+    className="animate-card w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 space-y-6"
+  >
+    <h2 className="text-3xl font-semibold text-center">Login</h2>
+
+    {error && (
+      <div className="animate-shake text-red-400 text-sm bg-red-500/10 p-3 rounded-lg">
+        {error}
+      </div>
+    )}
+
+    <input
+      name="identifier"
+      placeholder="Email or Username"
+      value={form.identifier}
+      onChange={handleChange}
+      required
+      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:border-indigo-500"
+    />
+
+    <input
+      name="password"
+      type="password"
+      placeholder="Password"
+      value={form.password}
+      onChange={handleChange}
+      required
+      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 focus:outline-none focus:border-indigo-500"
+    />
+
+    <button
+      type="submit"
+      disabled={loading}
+      className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50"
+    >
+      {loading ? "Logging in..." : "Login"}
+    </button>
+
+    <p className="text-center text-sm text-gray-400">
+      Don’t have an account?{" "}
+      <Link to="/signup" className="text-indigo-400 hover:underline">
+        Sign up
+      </Link>
+    </p>
+  </form>
+</div>
+
+
+)
 }

@@ -62,7 +62,7 @@ export default function PollHeader({ poll, wsStatus }) {
     const access = poll?.access
     if (!access) return "public"
 
-    if (access.allowed_emails?.length) return "whitelisted"
+    if (access.visibility === "whitelisted") return "whitelisted"
     if (access.require_login) return "authenticated"
     if (access.visibility === "link") return "private"
 
@@ -127,9 +127,9 @@ export default function PollHeader({ poll, wsStatus }) {
           {/* mobile indicators */}
           <div className="flex items-center gap-2 sm:hidden">
             <span className={`w-2.5 h-2.5 rounded-full ${ws.color} animate-pulse`} />
-            <span className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
+            {/* <span className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
               <AccessIcon size={12} />
-            </span>
+            </span> */}
           </div>
         </div>
 
