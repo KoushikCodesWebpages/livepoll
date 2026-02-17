@@ -4,7 +4,8 @@ import PollCard from "../../components/PollCard.jsx"
 // import Loader from "../../components/ui/Loader"
 
 export default function Home() {
-const { data: polls = [], isLoading, error } = useMyPolls()
+const { data, isLoading, error } = useMyPolls()
+const polls = Array.isArray(data) ? data : []
 
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">

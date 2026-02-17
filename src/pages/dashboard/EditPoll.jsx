@@ -2,7 +2,6 @@ import { useLoaderData, useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { ArrowLeft } from "lucide-react"
 
-import Navbar from "../../components/Navbar"
 import { API } from "../../api/client"
 import { useToast } from "../../components/ui/ToastProvider"
 
@@ -14,7 +13,10 @@ import SubmitBar from "../../components/poll/SubmitBar"
 
 export default function EditPoll() {
 
-  const poll = useLoaderData()
+  // ----- unwrap loader -----
+  const data = useLoaderData()
+  const poll = data?.poll ?? data
+
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -22,32 +24,41 @@ export default function EditPoll() {
   const [advanced, setAdvanced] = useState(false)
   const [error, setError] = useState("")
 
+  // ----- helpers -----
+  const toLocal = (v) => v ? new Date(v).toISOString().slice(0,16) : ""
+
+  const mapVisibility = {
+    whitelist: "whitelisted",
+    link: "private"
+  }
+
+  // ----- form state -----
   const [form, setForm] = useState({
-    question: poll.content.question,
-    description: poll.content.description || "",
-    options: poll.content.options.map(o => o.text),
+    question: poll?.content?.question || "",
+    description: poll?.content?.description || "",
+    options: poll?.content?.options?.map(o => o.text) || [],
 
-    visibility: poll.access.visibility,
-    allowed_emails: (poll.access.allowed_emails || []).join(","),
+    visibility: poll?.access?.visibility || "public",
+    allowed_emails: (poll?.access?.allowed_emails || []).join(","),
 
-    allow_change: poll.vote.allow_change_vote,
-    anonymous: poll.vote.anonymous_vote,
+    allow_change: poll?.vote?.allow_change_vote ?? false,
+    anonymous: poll?.vote?.anonymous_vote ?? true,
 
-    randomize_options: poll.content.randomize_options,
-    allow_custom_option: poll.content.allow_custom_option,
+    randomize_options: poll?.content?.randomize_options ?? false,
+    allow_custom_option: poll?.content?.allow_custom_option ?? false,
 
-    hide_results_until_end: poll.vote.hide_results_until_end,
-    show_voters: poll.vote.show_voters,
-    unique_ip: poll.vote.unique_ip,
-    unique_session: poll.vote.unique_session,
+    hide_results_until_end: poll?.vote?.hide_results_until_end ?? false,
+    show_voters: poll?.vote?.show_voters ?? false,
+    unique_ip: poll?.vote?.unique_ip ?? false,
+    unique_session: poll?.vote?.unique_session ?? false,
 
-    start_at: poll.behavior.start_at?.slice(0,16) || "",
-    end_at: poll.behavior.end_at?.slice(0,16) || "",
-    auto_close: poll.behavior.auto_close,
-    show_live_results: poll.behavior.show_live_results
+    start_at: toLocal(poll?.behavior?.start_at),
+    end_at: toLocal(poll?.behavior?.end_at),
+    auto_close: poll?.behavior?.auto_close ?? false,
+    show_live_results: poll?.behavior?.show_live_results ?? false
   })
 
-  // helpers
+  // ----- form helpers -----
   const update = (key, value) =>
     setForm(prev => ({ ...prev, [key]: value }))
 
@@ -63,24 +74,32 @@ export default function EditPoll() {
   const removeOption = (i) =>
     update("options", form.options.filter((_, idx) => idx !== i))
 
-  // PATCH
+  // ----- submit -----
   const submit = async () => {
+
     setLoading(true)
     setError("")
 
     try {
+
       await API.patch(`/b1/poll/${poll.poll_id}`, {
+
         content: {
           question: form.question,
           description: form.description,
-          options: form.options.map(text => ({ text }))
+          options: form.options.map((text, i) => ({
+            option_id: poll.content.options[i]?.option_id,
+            text
+          }))
         },
+
         access: {
-          visibility: form.visibility,
+          visibility: mapVisibility[form.visibility] || form.visibility,
           allowed_emails: form.allowed_emails
             ? form.allowed_emails.split(",").map(e => e.trim())
             : []
         },
+
         vote: {
           allow_change_vote: form.allow_change,
           anonymous_vote: form.anonymous,
@@ -89,12 +108,14 @@ export default function EditPoll() {
           unique_ip: form.unique_ip,
           unique_session: form.unique_session
         },
+
         behavior: {
           start_at: form.start_at || null,
           end_at: form.end_at || null,
           auto_close: form.auto_close,
           show_live_results: form.show_live_results
         }
+
       })
 
       toast.show("Poll updated ✏️")
@@ -110,8 +131,7 @@ export default function EditPoll() {
   return (
     <div className="min-h-screen bg-[#0b0f19] text-white">
 
-      <Navbar />
-
+      {/* BACK */}
       <div className="max-w-3xl mx-auto px-6 pt-6">
         <button
           onClick={() => navigate(-1)}
@@ -122,6 +142,7 @@ export default function EditPoll() {
         </button>
       </div>
 
+      {/* BODY */}
       <div className="max-w-3xl mx-auto px-6 pb-28 space-y-6">
 
         <h2 className="text-2xl font-semibold">Edit Poll</h2>
@@ -156,7 +177,6 @@ export default function EditPoll() {
       </div>
 
       <SubmitBar loading={loading} submit={submit} mode="edit" />
-
 
     </div>
   )

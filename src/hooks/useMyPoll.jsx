@@ -6,8 +6,11 @@ export default function useMyPolls() {
     queryKey: ["my-polls"],
     queryFn: async () => {
       const res = await API.get("/b1/poll/mine")
-      return res.data.data || []
+      return res.data.data
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
+
+    refetchOnMount: true,          // ← when navigating back
+    refetchOnWindowFocus: true,    // ← tab switch
+    staleTime: 0,                  // ← always considered stale
   })
 }

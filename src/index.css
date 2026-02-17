@@ -98,3 +98,10 @@ html {
 .card-accent:hover::before {
   opacity: 1;
 }
+
+/* tailwind.css */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.15s ease; }

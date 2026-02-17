@@ -16,16 +16,26 @@ export default function PollHeader({ poll, wsStatus }) {
   const sharePoll = async () => {
     try {
       const res = await API.post(`/b1/poll/${poll.poll_id}/share`, {
-        mode: "infinite",
+        mode: "public",
         type: "view",
         uses: 0
       })
 
-      const shareUrl = `${window.location.origin}${res.data.link}`
-      await navigator.clipboard.writeText(shareUrl)
+      const token = res.data.token
+      if (!token) throw new Error("No token returned")
+
+      const path = `/share?token=${token}`
+      const fullUrl = `${window.location.origin}${path}`
+
+      // copy
+      await navigator.clipboard.writeText(fullUrl)
       toast.show("Share link copied 🔗")
 
-    } catch {
+      // // navigate to preview share page
+      // navigate(path)
+
+    } catch (err) {
+      console.error(err)
       toast.show("Failed to create share link")
     }
   }
@@ -61,11 +71,13 @@ export default function PollHeader({ poll, wsStatus }) {
   }
 
   const ws = wsMap[wsStatus] || wsMap.idle
+return (
+  <div className="space-y-3 sm:space-y-0 sm:flex sm:justify-between sm:items-center">
 
-  return (
-    <div className="flex justify-between items-center">
+    {/* TOP ROW */}
+    <div className="flex items-center justify-between sm:justify-start gap-3">
 
-      {/* LEFT */}
+      {/* BACK */}
       <button
         onClick={() => navigate("/home", { replace: true })}
         className="flex items-center gap-2 text-gray-300 hover:text-white transition"
@@ -73,40 +85,57 @@ export default function PollHeader({ poll, wsStatus }) {
         <ArrowLeft size={18} /> Back
       </button>
 
-      {/* RIGHT */}
-      <div className="flex items-center gap-3">
+      {/* STATUS + ACCESS (mobile right side) */}
+      <div className="flex items-center gap-2 sm:hidden">
 
-        {/* WS INDICATOR */}
-        <div className="flex items-center gap-2 text-xs text-gray-300">
+        {/* WS */}
+        <div className="flex items-center gap-1 text-xs text-gray-300">
           <span className={`w-2.5 h-2.5 rounded-full ${ws.color} animate-pulse`} />
-          <span className="hidden sm:inline">{ws.label}</span>
         </div>
 
-        {/* ACCESS BADGE */}
-        <span className={`flex items-center gap-1 px-3 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
+        {/* ACCESS */}
+        <span className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
           <AccessIcon size={12} />
-          {accessConfig[accessType].label}
         </span>
 
-        {/* OWNER BUTTONS */}
-        {isOwner && (
-          <>
-            <button
-              onClick={sharePoll}
-              className="px-4 py-2 bg-emerald-600 rounded-lg hover:bg-emerald-500 flex gap-2 items-center"
-            >
-              <Share2 size={16}/> Share
-            </button>
-
-            <button
-              onClick={() => navigate(`/edit/${poll.poll_id}`)}
-              className="px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500 flex gap-2 items-center"
-            >
-              <Pencil size={16}/> Edit
-            </button>
-          </>
-        )}
       </div>
     </div>
-  )
+
+    {/* BOTTOM ROW */}
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3 sm:flex-nowrap sm:justify-end">
+
+      {/* WS INDICATOR (desktop) */}
+      <div className="hidden sm:flex items-center gap-2 text-xs text-gray-300">
+        <span className={`w-2.5 h-2.5 rounded-full ${ws.color} animate-pulse`} />
+        <span>{ws.label}</span>
+      </div>
+
+      {/* ACCESS BADGE (desktop) */}
+      <span className={`hidden sm:flex items-center gap-1 px-3 py-1 text-xs rounded-full border ${accessConfig[accessType].style}`}>
+        <AccessIcon size={12} />
+        {accessConfig[accessType].label}
+      </span>
+
+      {/* OWNER BUTTONS */}
+      {isOwner && (
+        <>
+          <button
+            onClick={sharePoll}
+            className="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 rounded-lg hover:bg-emerald-500 flex gap-2 items-center justify-center"
+          >
+            <Share2 size={16}/> <span className="sm:inline hidden">Share</span>
+          </button>
+
+          <button
+            onClick={() => navigate(`/edit/${poll.poll_id}`)}
+            className="flex-1 sm:flex-none px-4 py-2 bg-indigo-600 rounded-lg hover:bg-indigo-500 flex gap-2 items-center justify-center"
+          >
+            <Pencil size={16}/> <span className="sm:inline hidden">Edit</span>
+          </button>
+        </>
+      )}
+    </div>
+
+  </div>
+)
 }
