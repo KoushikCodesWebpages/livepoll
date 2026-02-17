@@ -123,7 +123,7 @@ const submitVote = async () => {
   setSuccess("");
 
   try {
-    await API.post("/b1/poll/share/vote", {
+    await API.post("/b1/vote", {
       token,
       option_id: selected,
     });
