@@ -3,7 +3,10 @@ import { useMemo } from "react"
 
 export default function OptionsEditor({ form, updateOption, addOption, removeOption }) {
 
-  const trimmed = form.options.map(o => o.trim())
+  // normalize option value
+  const getText = (o) => typeof o === "string" ? o : o?.text || ""
+
+  const trimmed = form.options.map(o => getText(o).trim())
 
   const hasEmpty = trimmed.some(o => o === "")
   const duplicates = new Set(trimmed.filter((o, i) => o && trimmed.indexOf(o) !== i))
@@ -15,7 +18,7 @@ export default function OptionsEditor({ form, updateOption, addOption, removeOpt
     if (hasEmpty) return "Options cannot be empty"
     if (hasDuplicates) return "Duplicate options not allowed"
     return ""
-  }, [form.options])
+  }, [trimmed.join("|")]) // stable dependency
 
   return (
     <CardSection title="Options">
@@ -23,12 +26,15 @@ export default function OptionsEditor({ form, updateOption, addOption, removeOpt
       <div className="space-y-3">
 
         {form.options.map((opt, i) => {
-          const duplicate = opt && trimmed.indexOf(opt.trim()) !== i
+
+          const value = getText(opt)
+          const duplicate = value && trimmed.indexOf(value.trim()) !== i
 
           return (
             <div key={i} className="flex gap-2 items-center">
+
               <input
-                value={opt}
+                value={value}
                 onChange={e => updateOption(i, e.target.value)}
                 className={`flex-1 p-3 rounded-lg border
                   ${duplicate
@@ -45,6 +51,7 @@ export default function OptionsEditor({ form, updateOption, addOption, removeOpt
                   ✕
                 </button>
               )}
+
             </div>
           )
         })}

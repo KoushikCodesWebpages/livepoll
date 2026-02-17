@@ -3,13 +3,13 @@ import PollQuestion from "./realtimepoll/PollQuestion"
 import PollDetails from "./realtimepoll/PollDetails"
 import PollMeta from "./realtimepoll/PollMeta"
 
-export default function PollViewCard({ poll,viewers,wsStatus}) {
+export default function PollViewCard({ poll,viewers,wsStatus,hasVotes}) {
 
   if (!poll) return null
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <PollHeader poll={poll} wsStatus={wsStatus} />
+      <PollHeader poll={poll} hasVotes={hasVotes} wsStatus={wsStatus} />
       <PollQuestion poll={poll} />
       <PollDetails poll={poll} />
       <PollMeta poll={poll} viewers={viewers} />
