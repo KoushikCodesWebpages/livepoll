@@ -21,6 +21,7 @@ export default function PollCard({ poll }) {
     : null
 
   let status = "Running"
+
   let statusStyle = "bg-green-500/20 text-green-300 border-green-500/30"
 
   if (expiry && now > expiry) {
@@ -62,7 +63,19 @@ export default function PollCard({ poll }) {
     ? "Public"
     : "Private"
   
-  const access = poll.access?.visibility
+  let access = "public"
+
+    const a = poll.access
+
+    if (typeof a === "string") {
+      access = a
+    } else if (a?.allowed_emails?.length) {
+      access = "whitelisted"
+    } else if (a?.require_login) {
+      access = "authenticated"
+    } else if (a?.visibility === "private") {
+      access = "private"
+    }
 
   return (
     <div
@@ -108,8 +121,8 @@ export default function PollCard({ poll }) {
             {status}
           </span>
 
-          <span className={`px-3 py-1 text-xs rounded-full border ${accessConfig[access].style}`}>
-            {access}
+          <span className={`px-3 py-1 text-xs rounded-full border ${(accessConfig[access] || accessConfig.public).style}`}>
+            {(accessConfig[access] || accessConfig.public).label}
           </span>
         </div>
 
